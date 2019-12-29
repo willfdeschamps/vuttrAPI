@@ -3,7 +3,9 @@ service: vuttrapi
 provider:
   name: aws
   runtime: nodejs12.x
+  stage : dev
   region : sa-east-1
+  
 
 functions:
   hello:

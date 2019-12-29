@@ -4,7 +4,9 @@
   "description": "",
   "main": "handler.js",
   "dependencies": {
-    "middy": "^0.33.1"
+    "bluebird": "^3.7.2",
+    "middy": "^0.33.1",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {},
   "scripts": {

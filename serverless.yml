@@ -5,9 +5,62 @@ provider:
   runtime: nodejs12.x
   stage : dev
   region : sa-east-1
-  
-
+  environment:
+    TOOL_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
+      
 functions:
-  hello:
-    handler: handler.hello
+  getAllTools:
+    handler: domain/tools.getAll
+    memorySize: 256
+    description: Return all the very useful tools to remind that attend the tag filter if informed.
+    events:
+      - http: 
+          path: tools
+          method: get
+  insertTool:
+    handler: domain/tools.insert
+    memorySize: 256
+    description: Insert a new very useful tool to remind.
+    events:
+      - http: 
+          path: tools
+          method: post
+  removeTool:
+    handler: domain/tools.remove
+    memorySize: 256
+    description: Remove a very useful tool to remind by its id.
+    events:
+      - http: 
+          path: tools/{id}
+          method: delete
+          request:
+            parameters:
+              paths:
+                id: true
 
+resources:
+  Resources:
+    ToolsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.TOOL_TABLE}

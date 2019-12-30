@@ -9,13 +9,11 @@ AWS.config.setPromisesDependency(bluebird);
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-const insertSchema = {
+const inputSchema = {
     required: ["body"],
-    type: 'object',
     properties: {
         body: {
-            type: 'object',
-            properties: {
+                properties: {
                 title: { type: 'string', minLength: 3, maxLength: 35 },
                 link: { type: 'string', minLength: 3, maxLength: 200 },
                 description: { type: 'string', minLength: 3, maxLength: 100 },
@@ -63,7 +61,7 @@ const insert = (event, context, callback) => {
 
 const insertHandler = middy(insert)
     .use(jsonBodyParser()) // parses the request body when it's a JSON and converts it to an object
-    .use(validator({ insertSchema })) // validates the input
+    .use(validator({ inputSchema })) // validates the input
     .use(httpErrorHandler()) // handles common http errors and returns proper responses
 
 module.exports = { insertHandler }

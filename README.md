@@ -39,25 +39,51 @@ https://aws.amazon.com/pt/resources/create-account/
 
 ### Installing
 
-With all the prerequisites installed you 
+With all the prerequisites installed you must follow the steps below
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+1 - Configurate a user in AWS
 
 ```
-until finished
+> Go to -> https://console.aws.amazon.com/iam
+> Click in "Users" at the left side menu
+> Click in Add User
+> Inform a User name
+> Check the Programmatic access option
+> Click Next
+> Select Attach existing policies directly
+> Check the AdministratorAccess
+> Click Next, Next and Create User
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+1 - Configurate a user in AWS
+
+```
+> Go to -> https://console.aws.amazon.com/iam
+> Click in "Users" at the left side menu
+> Click in Add User
+> Inform a User name
+> Check the Programmatic access option
+> Click Next
+> Select Attach existing policies directly
+> Check the AdministratorAccess
+> Click Next, Next and Create User
+```
+
+2 - Configurate aws user credentials for on the serverless framework
+
+```
+serverless config credentials -o --provider aws --key <Your Access key ID> --secret <Your Secret access key>
+```
+
+3 - Install the javascript lambda dependencies
+
+```
+In the root directory run: npm install
+```
 
 ## Deployment
 
-To deploy this project you must run the serverless deploy command in the root directory
+In the root directory run: serverless deploy
 
 ## Built With
 

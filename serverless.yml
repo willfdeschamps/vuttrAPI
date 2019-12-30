@@ -25,10 +25,16 @@ functions:
       - http: 
           path: tools
           method: get
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
+          request:
+                template:
+                  application/json: >
+                    {
+                      "tag" : "$input.params('tag')",
+                    }
   insertTool:
     handler: domain/tools.insert
     memorySize: 256
@@ -37,11 +43,11 @@ functions:
       - http: 
           path: tools
           method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          # cors: true
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
   removeTool:
     handler: domain/tools.remove
     memorySize: 256
@@ -50,10 +56,10 @@ functions:
       - http: 
           path: tools/{id}
           method: delete
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
           request:
             parameters:
               paths:

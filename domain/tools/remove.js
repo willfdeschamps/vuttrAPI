@@ -1,33 +1,19 @@
-const AWS = require('aws-sdk');
-//const bluebird = require('bluebird');
-
-//AWS.config.setPromisesDependency(bluebird);
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const Repository = require('../../infra/repository-factory')
+const toolsRepository = new Repository(process.env.TOOL_TABLE)
 
 module.exports.remove = (event, context, callback) => {
   const id = event.pathParameters.id
-  var params = {
-    TableName: process.env.TOOL_TABLE,
-    Key : {
-      id
-    }
-  };
-
-  const responseHandler = (err, data) => {
-    console.log(err,data)
-    if (err) {
+  
+  toolsRepository.removeItem(id)
+  .then(res => {
       callback(null, {
-        statusCode: 400,
-        body: err
+          statusCode: 200,
       });
-    } else {
+    })
+  .catch(err => {
       callback(null, {
-        statusCode: 200
-      });
-    }
-
-  };
-
-  dynamoDb.delete(params, responseHandler);
+          statusCode: 400,
+          body: err
+      })
+  })
 };

@@ -1,13 +1,12 @@
-const AWS = require('aws-sdk');
+//qconst AWS = require('aws-sdk');
 const middy = require('middy')
 const { jsonBodyParser, validator, httpErrorHandler } = require('middy/middlewares')
-const bluebird = require('bluebird');
-const uuid = require('uuid');
+//const bluebird = require('bluebird');
+//AWS.config.setPromisesDependency(bluebird);
 
+const Repository = require('../../infra/repository-factory')
 
-AWS.config.setPromisesDependency(bluebird);
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const toolsRepository = new Repository(process.env.TOOL_TABLE)
 
 const inputSchema = {
     required: ["body"],
@@ -24,20 +23,11 @@ const inputSchema = {
     }
 }
 
-const submitTool = tool => {
-    const toolInfo = {
-        TableName: process.env.TOOL_TABLE,
-        Item: {...tool},
-    };
-    return dynamoDb.put(toolInfo).promise()
-        .then(res => tool);
-};
-
 const insert = (event, context, callback) => {
-    const id = uuid.v4()
+   
     const { title, link, description, tags } = event.body
   
-    submitTool({ id, title, link, description, tags })
+    toolsRepository.saveItem({ title, link, description, tags })
         .then(res => {
             callback(null, {
                 statusCode: 201,
@@ -60,8 +50,8 @@ const insert = (event, context, callback) => {
 };
 
 const insertHandler = middy(insert)
-    .use(jsonBodyParser()) // parses the request body when it's a JSON and converts it to an object
-    .use(validator({ inputSchema })) // validates the input
-    .use(httpErrorHandler()) // handles common http errors and returns proper responses
+    .use(jsonBodyParser())
+    .use(validator({ inputSchema })) 
+    .use(httpErrorHandler())
 
 module.exports = { insertHandler }

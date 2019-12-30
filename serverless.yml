@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: nodejs12.x
   stage : dev
-  region : sa-east-1
+  region : us-east-1
   environment:
     TOOL_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iamRoleStatements:
@@ -25,6 +25,16 @@ functions:
       - http: 
           path: tools
           method: get
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
+          request:
+                template:
+                  application/json: >
+                    {
+                      "tag" : "$input.params('tag')",
+                    }
   insertTool:
     handler: domain/tools.insert
     memorySize: 256
@@ -33,6 +43,11 @@ functions:
       - http: 
           path: tools
           method: post
+          # cors: true
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
   removeTool:
     handler: domain/tools.remove
     memorySize: 256
@@ -41,11 +56,14 @@ functions:
       - http: 
           path: tools/{id}
           method: delete
+          # authorizer:
+          #   type: COGNITO_USER_POOLS
+          #   authorizerId:
+          #     Ref: ApiGatewayAuthorizer
           request:
             parameters:
               paths:
                 id: true
-
 resources:
   Resources:
     ToolsDynamoDbTable:
@@ -64,3 +82,36 @@ resources:
         StreamSpecification:
           StreamViewType: "NEW_AND_OLD_IMAGES"
         TableName: ${self:provider.environment.TOOL_TABLE}
+    CognitoUserPool:
+      Type: "AWS::Cognito::UserPool"
+      Properties:
+        MfaConfiguration: OFF
+        UserPoolName: my-user-pool
+        UsernameAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+            RequireLowercase: False
+            RequireNumbers: True
+            RequireSymbols: False
+            RequireUppercase: True
+    CognitoUserPoolClient:
+      Type: "AWS::Cognito::UserPoolClient"
+      Properties:
+        ClientName: my-user-pool-client
+        GenerateSecret: False
+        UserPoolId:
+          Ref: CognitoUserPool
+    ApiGatewayAuthorizer:
+      DependsOn:
+        - ApiGatewayRestApi
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: cognito-authorizer
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - Fn::GetAtt: [CognitoUserPool, Arn]

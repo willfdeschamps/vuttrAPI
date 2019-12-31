@@ -3,17 +3,17 @@ const toolsRepository = new Repository(process.env.TOOL_TABLE)
 
 module.exports.remove = (event, context, callback) => {
   const id = event.pathParameters.id
-  
+
   toolsRepository.removeItem(id)
-  .then(res => {
+    .then(res => {
       callback(null, {
-          statusCode: 200,
+        statusCode: 200,
       });
     })
-  .catch(err => {
+    .catch(err => {
       callback(null, {
-          statusCode: 400,
-          body: err
+        statusCode: 400,
+        body: err
       })
-  })
+    })
 };

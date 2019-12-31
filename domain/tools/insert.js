@@ -12,7 +12,7 @@ const inputSchema = {
     required: ["body"],
     properties: {
         body: {
-                properties: {
+            properties: {
                 title: { type: 'string', minLength: 3, maxLength: 35 },
                 link: { type: 'string', minLength: 3, maxLength: 200 },
                 description: { type: 'string', minLength: 3, maxLength: 100 },
@@ -24,9 +24,9 @@ const inputSchema = {
 }
 
 const insert = (event, context, callback) => {
-   
+
     const { title, link, description, tags } = event.body
-  
+
     toolsRepository.saveItem({ title, link, description, tags })
         .then(res => {
             callback(null, {
@@ -51,7 +51,7 @@ const insert = (event, context, callback) => {
 
 const insertHandler = middy(insert)
     .use(jsonBodyParser())
-    .use(validator({ inputSchema })) 
+    .use(validator({ inputSchema }))
     .use(httpErrorHandler())
 
 module.exports = { insertHandler }

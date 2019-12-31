@@ -5,6 +5,7 @@ provider:
   runtime: nodejs12.x
   stage : dev
   region : us-east-1
+  # [sugestão] Separar o arquivo de variáveis de ambiente
   environment:
     TOOL_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iamRoleStatements:
@@ -15,8 +16,19 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
       Resource: "*"
-      
+
+# [sugestão] Utilizar mais os "plugins" do framework, como por exemplo:
+# serverless-plugin-typescript é um plug-in para suporte ao Typecript
+# serverless-dynamodb-local é um plug-in para permitir o desenvolvimento offline
+# serverless-offline é um plug-in para permitir o desenvolvimento offline
+# serverless-prune-plugin permite a remoção de todas as versões, exceto as mais recentes, de funções gerenciadas da AWS
+# serverless-plugin-tracing habilita o AWS X-Ray (https://aws.amazon.com/xray/) para toda a Serverless stack ou lambdas individuais.
+
+# [melhoria] configurar o CORS no serverless.yml (aqui) e nas funções utilizando o middleware `cors()` 
 functions:
+  # [melhoria] Console Warning:
+  # Serverless: Warning! You're using the AWS_PROXY in combination with a request configuration in your function 
+  # "getAllTools". Only the request.parameters, request.schema configs are available in conjunction with AWS_PROXY. Serverless will remove this configuration automatically before deployment.
   getAllTools:
     handler: domain/tools.getAll
     memorySize: 256
